@@ -1,6 +1,6 @@
 # kevinngo.me
 
-Kevin Ngo's personal site, built with Astro and deployed to GitHub Pages.
+Kevin Ngô's personal site, built with Astro and deployed to GitHub Pages.
 
 ## Development
 
@@ -9,6 +9,9 @@ Install dependencies:
 ```bash
 bun install
 ```
+
+The project uses Bun 1.3.14, pinned in `package.json` and the deployment
+workflow.
 
 Start the development server:
 
@@ -23,15 +26,25 @@ bun run build
 bun run preview
 ```
 
+Run all repository checks before publishing:
+
+```bash
+bun run verify
+bun run audit
+```
+
+Use `bun run format` to format supported project files.
+
 ## Deployment
 
 The workflow at `.github/workflows/deploy.yml` builds the site and publishes
 `dist/` whenever a commit is pushed to `master`. Do not commit `dist/`; GitHub
-Actions creates it during deployment.
+Actions creates it during deployment. Dependabot checks Bun and GitHub Actions
+dependencies weekly.
 
 Repository: [Kevin-Ngo/KevinNgoDotMeV2](https://github.com/Kevin-Ngo/KevinNgoDotMeV2)
 
-Current Pages deployment: [kevin-ngo.github.io/KevinNgoDotMeV2](https://kevin-ngo.github.io/KevinNgoDotMeV2/)
+Canonical site: [kevinngo.me](https://kevinngo.me/)
 
 ### Publish updates
 
@@ -39,8 +52,9 @@ Verify, commit, and push changes to `master`:
 
 ```bash
 bun install --frozen-lockfile
-bun run build
-git add .
+bun run verify
+git status --short
+git add path/to/changed-file
 git commit -m "Update site"
 git push origin master
 ```
@@ -51,6 +65,5 @@ without a new commit, open **Actions > Deploy to GitHub Pages** and select
 
 ### Custom domain
 
-`public/CNAME` includes `kevinngo.me` in every build. To move the domain to this
-repository, set `kevinngo.me` under **Settings > Pages > Custom domain**, verify
-the DNS records, and enable **Enforce HTTPS** after GitHub issues the certificate.
+`public/CNAME` includes the active `kevinngo.me` custom domain in every build.
+GitHub Pages should keep **Enforce HTTPS** enabled for that domain.

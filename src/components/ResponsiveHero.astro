@@ -1,0 +1,116 @@
+---
+import { getImage } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+type ImageWidths = readonly [number, ...number[]];
+
+interface Props {
+  mobile: ImageMetadata;
+  wide: ImageMetadata;
+  mobilePlaceholder: string;
+  widePlaceholder: string;
+  alt: string;
+  mobileWidths?: ImageWidths;
+  wideWidths?: ImageWidths;
+  mobileSizes?: string;
+  wideSizes?: string;
+  wideMedia?: string;
+  class?: string;
+  imageClass?: string;
+}
+
+const {
+  mobile,
+  wide,
+  mobilePlaceholder,
+  widePlaceholder,
+  alt,
+  mobileWidths = [400, 800],
+  wideWidths = [800, 1400],
+  mobileSizes = "90vw",
+  wideSizes = "(min-width: 1280px) 691px, (min-width: 768px) 54vw, 90vw",
+  wideMedia = "(min-width: 640px)",
+  class: className,
+  imageClass,
+} = Astro.props;
+
+const createSrcSet = async (
+  src: ImageMetadata,
+  widths: ImageWidths,
+  format: "jpg" | "webp",
+) => {
+  const images = await Promise.all(
+    widths.map(async (width) => ({
+      width,
+      image: await getImage({ src, width, format }),
+    })),
+  );
+  const fallback = images.at(-1);
+
+  if (!fallback)
+    throw new Error("Responsive images require at least one width");
+
+  return {
+    src: fallback.image.src,
+    srcset: images
+      .map(({ image, width }) => `${image.src} ${width}w`)
+      .join(", "),
+  };
+};
+
+const [mobileJpeg, mobileWebp, wideJpeg, wideWebp] = await Promise.all([
+  createSrcSet(mobile, mobileWidths, "jpg"),
+  createSrcSet(mobile, mobileWidths, "webp"),
+  createSrcSet(wide, wideWidths, "jpg"),
+  createSrcSet(wide, wideWidths, "webp"),
+]);
+---
+
+<picture
+  class:list={[
+    "hero relative isolate block min-w-0 overflow-hidden",
+    className,
+  ]}
+  style={`--hero-placeholder-mobile: url(${mobilePlaceholder}); --hero-placeholder-wide: url(${widePlaceholder});`}
+>
+  <span class="hero-placeholder absolute inset-0" aria-hidden="true"></span>
+  <source
+    media={wideMedia}
+    type="image/webp"
+    srcset={wideWebp.srcset}
+    sizes={wideSizes}
+  />
+  <source
+    media={wideMedia}
+    type="image/jpeg"
+    srcset={wideJpeg.srcset}
+    sizes={wideSizes}
+  />
+  <source type="image/webp" srcset={mobileWebp.srcset} sizes={mobileSizes} />
+  <img
+    class:list={["relative z-10 h-auto w-full object-cover", imageClass]}
+    src={mobileJpeg.src}
+    srcset={mobileJpeg.srcset}
+    sizes={mobileSizes}
+    width={mobile.width}
+    height={mobile.height}
+    alt={alt}
+    loading="eager"
+    fetchpriority="high"
+    decoding="async"
+  />
+</picture>
+
+<style>
+  .hero-placeholder {
+    transform: scale(1.08);
+    background: var(--hero-placeholder-mobile) center / cover no-repeat;
+    filter: blur(10px);
+  }
+
+  @media (min-width: 40rem) {
+    .hero-placeholder {
+      background-image: var(--hero-placeholder-wide);
+    }
+  }
+</style>

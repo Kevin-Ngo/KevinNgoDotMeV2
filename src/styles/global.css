@@ -34,37 +34,9 @@ body {
   left: 0;
   height: 100vh;
   height: 100lvh;
-  background: url("/background-1080.jpg") 50% 90% / cover no-repeat;
+  background: var(--background-mobile) 50% 90% / cover no-repeat;
+  background-color: #26345e;
   pointer-events: none;
-}
-
-.font-cycle-container {
-  position: relative;
-  min-width: 0;
-  width: 100%;
-}
-
-.font-cycle {
-  display: grid;
-  height: 1.15em;
-  place-items: center;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.font-cycle-debug {
-  position: absolute;
-  top: calc(100% + 1rem);
-  left: 50%;
-  padding: 0.35rem 0.6rem;
-  transform: translateX(-50%);
-  border: 1px solid rgb(255 255 255 / 30%);
-  border-radius: 0.25rem;
-  background: rgb(0 0 0 / 55%);
-  color: white;
-  font: 500 0.75rem/1.2 ui-monospace, monospace;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
 }
 
 @media (min-aspect-ratio: 1 / 1) {
@@ -76,7 +48,7 @@ body {
 
 @media (min-width: 48rem) {
   .home::before {
-    background-image: url("/background.jpg");
+    background-image: var(--background-desktop);
   }
 
   html,

@@ -1,0 +1,84 @@
+---
+import type { FontCycleConfig, HeadingFont } from "../types/font-cycle";
+
+interface Props {
+  fonts: HeadingFont[];
+  as?: "h1" | "h2" | "h3" | "p" | "span";
+  cycleMs?: number;
+  batchSize?: number;
+  maximumFonts?: number;
+  debug?: boolean;
+  class?: string;
+  containerClass?: string;
+}
+
+const {
+  fonts,
+  as: Tag = "span",
+  cycleMs = 500,
+  batchSize = 3,
+  maximumFonts = fonts.length,
+  debug = false,
+  class: className,
+  containerClass,
+} = Astro.props;
+
+const config = {
+  cycleMs,
+  batchSize,
+  maximumFonts,
+  fonts,
+} satisfies FontCycleConfig;
+---
+
+<div class:list={["font-cycle-container", containerClass]} data-font-cycle-root>
+  <Tag
+    class:list={["font-cycle", className]}
+    data-font-cycle
+    data-config={JSON.stringify(config)}
+  >
+    <slot />
+  </Tag>
+  {debug && (
+    <span class="font-cycle-debug" data-font-cycle-debug aria-hidden="true">
+      Loading fonts...
+    </span>
+  )}
+</div>
+
+<script>
+  import "../scripts/font-cycle";
+</script>
+
+<style>
+  .font-cycle-container {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .font-cycle {
+    display: grid;
+    height: 1.15em;
+    place-items: center;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .font-cycle-debug {
+    position: absolute;
+    top: calc(100% + 1rem);
+    left: 50%;
+    padding: 0.35rem 0.6rem;
+    transform: translateX(-50%);
+    border: 1px solid rgb(255 255 255 / 30%);
+    border-radius: 0.25rem;
+    background: rgb(0 0 0 / 55%);
+    color: white;
+    font:
+      500 0.75rem/1.2 ui-monospace,
+      monospace;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+</style>
